@@ -10,7 +10,7 @@ Run the following command to install all external packages:
 
 ## Usage
 
-```python3 security-quickscan.py```
+```python3 Scan.py```
 
 ## Todo
 
