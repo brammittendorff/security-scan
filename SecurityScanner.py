@@ -1,13 +1,17 @@
 import requests
 import sys
 import os
-import Queue
 import threading
 
 try:
     from urllib.parse import urlparse
 except ImportError:
     from urlparse import urlparse
+
+try:
+    import Queue as Queue
+except ImportError:
+    import queue as Queue
 
 class SecurityScanner:
 
@@ -61,7 +65,8 @@ class SecurityScanner:
         while True:
             url = self.queue.get()
             request = self.session.get(url)
-            print("%s on url: %s" % (request.status_code, url.rstrip()))
+            if(request.status_code != 404):
+                print("%s status on url: %s" % (request.status_code, url.rstrip()))
             self.queue.task_done()
 
     def searchHeaders(self):
