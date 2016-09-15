@@ -16,13 +16,13 @@ if args.url:
     if args.all or args.headers:
         scanner.searchHeaders()
     if args.all or args.dns:
-        scanner.scanDNS()
-elif args.file:
+        scanner.searchDNS()
+elif args.file is not sys.stdin:
     scanner = SecurityScanner.SecurityScanner()
     scanner.addFile(args.file)
     if args.all or args.headers:
         scanner.searchHeaders()
     if args.all or args.dns:
-        scanner.scanDNS()
+        scanner.searchDNS()
 else:
     parser.print_help()
