@@ -20,8 +20,8 @@ class SecurityScanner:
     def __init__(self):
         requests.packages.urllib3.disable_warnings()
         self.urls = []
-        self.concurrent = 200
         self.queue = None
+        self.concurrent = 200
         self.session = requests.Session()
 
     def runRequests(self, runFunction, listRequests):
@@ -43,13 +43,17 @@ class SecurityScanner:
 
     def addUrl(self, url):
         if isinstance(url, str):
-            self.urls.append(url)
+            correctUrl = urlparse(url).scheme + '://' + urlparse(url).netloc
+            print("\nScanning: %s\n" % (correctUrl))
+            self.urls.append(correctUrl)
 
     def addFile(self, fileLocation):
         # strip /n
         fileLocation = [word.strip() for word in fileLocation]
         for url in fileLocation:
-            self.urls.append(url)
+            correctUrl = urlparse(url).scheme + '://' + urlparse(url).netloc
+            print("\nScanning: %s\n" % (correctUrl))
+            self.urls.append(correctUrl)
 
     def searchDirectories(self):
         directoryRequests = []
@@ -60,23 +64,32 @@ class SecurityScanner:
                     for filename in directoryFile:
                         directoryRequests.append(url + '/' + filename)
             self.runRequests('resultDirectories', directoryRequests)
+        else:
+            print("File '%s' does not exist" % (directoryFileName))
 
     def resultDirectories(self):
         while True:
             url = self.queue.get()
-            request = self.session.get(url)
-            if(request.status_code != 404):
-                print("%s status on url: %s" % (request.status_code, url.rstrip()))
+            try:
+                request = self.session.get(url, verify=False)
+                if(request.status_code != 404):
+                    print("%s status on url: %s" % (request.status_code, url.rstrip()))
+            except KeyboardInterrupt:
+                sys.exit(1)
             self.queue.task_done()
 
     def searchHeaders(self):
         self.runRequests('resultHeaders', self.urls)
 
     def resultHeaders(self):
-        url = self.queue.get()
-        request = self.session.get(url)
-        print(request.headers)
-        self.queue.task_done()
+        while True:
+            url = self.queue.get()
+            try:
+                request = self.session.get(url, verify=False)
+                print(request.headers)
+            except KeyboardInterrupt:
+                sys.exit(1)
+            self.queue.task_done()
 
     def searchDNS(self):
         dnsRequests = []
@@ -85,7 +98,14 @@ class SecurityScanner:
         self.runRequests('resultDNS', dnsRequests)
 
     def resultDNS(self):
-        url = self.queue.get()
-        request = self.session.get(url)
-        print(request.headers)
-        self.queue.task_done()
+        while True:
+            url = self.queue.get()
+            try:
+                request = self.session.get(url, verify=False)
+                print(request.headers)
+            except KeyboardInterrupt:
+                sys.exit(1)
+            except requests.exceptions.RequestException as requestsError:
+                print(requestsError)
+                sys.exit(1)
+            self.queue.task_done()
