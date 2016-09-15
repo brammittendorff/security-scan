@@ -76,6 +76,8 @@ class SecurityScanner:
                     print("%s status on url: %s" % (request.status_code, url.rstrip()))
             except KeyboardInterrupt:
                 sys.exit(1)
+            except requests.exceptions.RequestException as requestsError:
+                print(requestsError)
             self.queue.task_done()
 
     def searchHeaders(self):
@@ -89,6 +91,8 @@ class SecurityScanner:
                 print(request.headers)
             except KeyboardInterrupt:
                 sys.exit(1)
+            except requests.exceptions.RequestException as requestsError:
+                print(requestsError)
             self.queue.task_done()
 
     def searchDNS(self):
@@ -107,5 +111,4 @@ class SecurityScanner:
                 sys.exit(1)
             except requests.exceptions.RequestException as requestsError:
                 print(requestsError)
-                sys.exit(1)
             self.queue.task_done()
