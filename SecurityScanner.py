@@ -44,7 +44,7 @@ class SecurityScanner:
     def addUrl(self, url):
         if isinstance(url, str):
             correctUrl = urlparse(url).scheme + '://' + urlparse(url).netloc
-            print("\nScanning: %s\n" % (correctUrl))
+            print("Scanning: %s" % (correctUrl))
             self.urls.append(correctUrl)
 
     def addFile(self, fileLocation):
@@ -52,7 +52,7 @@ class SecurityScanner:
         fileLocation = [word.strip() for word in fileLocation]
         for url in fileLocation:
             correctUrl = urlparse(url).scheme + '://' + urlparse(url).netloc
-            print("\nScanning: %s\n" % (correctUrl))
+            print("Scanning: %s" % (correctUrl))
             self.urls.append(correctUrl)
 
     def searchDirectories(self):
