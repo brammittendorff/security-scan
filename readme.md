@@ -1,14 +1,28 @@
 # Security Scan
 
-This is a quick scan to check the most known vulnerabilities.
+This is a quick scan to check the most known vulnerabilities in your web application.
 
 ## Installation
+
+### python2
+
+Run the following command to install all external packages:
+
+```pip install -r requirements.txt```
+
+### python3
 
 Run the following command to install all external packages:
 
 ```pip3 install -r requirements.txt```
 
 ## Usage
+
+### python2
+
+```python Scan.py```
+
+### python3
 
 ```python3 Scan.py```
 
