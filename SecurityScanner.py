@@ -94,33 +94,31 @@ class SecurityScanner:
     def searchEmailserver(self, smtpType=None):
         if smtpType == 'RCPT':
             self.bruteEmailType = smtpType
-            socketEmailCommands = []
-            directoryUnixUsers = 'resources/unix-users.txt'
-            if(os.path.isfile(directoryUnixUsers)):
-                with open(directoryUnixUsers) as directoryFile:
-                    for unixUser in directoryFile:
+        socketEmailCommands = []
+        directoryUnixUsers = 'resources/unix-users.txt'
+        if(os.path.isfile(directoryUnixUsers)):
+            with open(directoryUnixUsers) as directoryFile:
+                for unixUser in directoryFile:
+                    if smtpType == 'RCPT':
                         socketEmailCommands.append('RCPT TO:' + unixUser)
-            self.runCommands('resultEmailserver', socketEmailCommands)
-        else:
-            socketEmailCommands = []
-            directoryUnixUsers = 'resources/unix-users.txt'
-            if(os.path.isfile(directoryUnixUsers)):
-                with open(directoryUnixUsers) as directoryFile:
-                    for unixUser in directoryFile:
+                    else:
                         socketEmailCommands.append('VRFY ' + unixUser)
-            self.runCommands('resultEmailserver', socketEmailCommands)
+        self.runCommands('resultEmailserver', socketEmailCommands)
 
     def resultEmailserver(self, smtpCommand):
         for url in self.urls:
             mySocket = socket.socket()
             mySocket.settimeout(10)
             receivedData = None
-            ipAddress = socket.gethostbyname(urlparse(url).netloc)
+            domain = urlparse(url).netloc
+            ipAddress = socket.gethostbyname(domain)
             try:
                 mySocket.connect((ipAddress, 25))
                 if self.bruteEmailType == 'RCPT':
-                    mySocket.sendall("MAIL FROM:notme@hack.fish\n")
-                error = mySocket.sendall(smtpCommand + "\n")
+                    mySocket.sendall("MAIL FROM:test@" + domain + "\n")
+                    error = mySocket.sendall(smtpCommand + "@" + domain + "\n")
+                else:
+                    error = mySocket.sendall(smtpCommand + "\n")
                 mySocket.recv(512)
                 if error:
                     print("Timeout on: %s" % (smtpCommand))

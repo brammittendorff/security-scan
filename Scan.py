@@ -7,7 +7,7 @@ parser.add_argument('--url', help='a url to scan', type=str)
 parser.add_argument('--file', help='a url file list to scan', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
 parser.add_argument('--all', help='the mother of all scans', action='store_true')
 parser.add_argument('--directories', help='scan directories after url', action='store_true')
-parser.add_argument('--smtpbruteforce', help='bruteforce usernames on mailserver using VRFY or RCPT', type=str)
+parser.add_argument('--smtpbrute', help='bruteforce usernames on mailserver using VRFY or RCPT', type=str)
 parser.add_argument('--headers', help='only scan the headers', action='store_true')
 parser.add_argument('--dns', help='only scan DNS', action='store_true')
 args = parser.parse_args()
@@ -17,10 +17,10 @@ if args.url:
     scanner.addUrl(args.url)
     if args.all or args.directories:
         scanner.searchDirectories()
-    if args.all or args.smtpbruteforce:
-        if args.smtpbruteforce == 'RCPT':
+    if args.all or args.smtpbrute:
+        if args.smtpbrute == 'RCPT':
             print("Bruteforcing SMTP using: RCPT")
-            scanner.searchEmailserver(args.smtpbruteforce)
+            scanner.searchEmailserver(args.smtpbrute)
         else:
             print("Bruteforcing SMTP using: VRFY")
             scanner.searchEmailserver()
