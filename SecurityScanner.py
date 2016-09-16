@@ -115,26 +115,28 @@ class SecurityScanner:
             try:
                 mySocket.connect((ipAddress, 25))
                 if self.bruteEmailType == 'RCPT':
-                    mySocket.sendall("MAIL FROM:test@" + domain + "\n")
-                    error = mySocket.sendall(command + "@" + domain + "\n")
+                    mySocket.sendall(b"MAIL FROM:test@" + str.encode(domain))
+                    error = mySocket.sendall(str.encode(command) + b"@" + str.encode(domain))
                 else:
-                    error = mySocket.sendall(command + "\n")
+                    error = mySocket.sendall(str.encode(command))
                 mySocket.recv(512)
                 if error:
                     print("Timeout on: %s" % command)
                 else:
                     try:
                         receivedData = mySocket.recv(512)
+                    except KeyboardInterrupt:
+                        sys.exit(1)
                     except socket.timeout:
                         print("Timeout on: %s" % command)
                 if receivedData:
                     if self.bruteEmailType == 'RCPT':
-                        if re.match("250", receivedData.split("\n")[1]):
+                        if re.match("250", str(receivedData.decode("utf-8")).split("\n")[1]):
                             print("Found user: %s" % command.replace('RCPT TO:', ''))
                     else:
-                        if re.match("250", receivedData):
+                        if re.match("250", str(receivedData.decode("utf-8"))):
                             print("Found user: %s" % command.replace('VRFY ', ''))
-                        elif re.match("252", receivedData):
+                        elif re.match("252", str(receivedData.decode("utf-8"))):
                             print("Found user: %s" % command.replace('VRFY ', ''))
                 else:
                     print("Did not received any data for command: %s" % command)
