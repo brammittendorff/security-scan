@@ -25,6 +25,7 @@ class SecurityScanner:
         self.queue = None
         self.concurrent = 200
         self.session = requests.Session()
+        self.bruteEmailType = 'VRFY'
 
     def runRequests(self, runFunction, listRequests):
         self.queue = Queue.Queue(self.concurrent * 2)
@@ -90,24 +91,36 @@ class SecurityScanner:
                 print(requestsError)
             self.queue.task_done()
 
-    def searchEmailserver(self):
-        socketEmailCommands = []
-        directoryUnixUsers = 'resources/unix-users.txt'
-        if(os.path.isfile(directoryUnixUsers)):
-            with open(directoryUnixUsers) as directoryFile:
-                for unixUser in directoryFile:
-                    socketEmailCommands.append('VRFY ' + unixUser)
-        self.runCommands('resultEmailserver', socketEmailCommands)
+    def searchEmailserver(self, smtpType=None):
+        if smtpType == 'RCPT':
+            self.bruteEmailType = smtpType
+            socketEmailCommands = []
+            directoryUnixUsers = 'resources/unix-users.txt'
+            if(os.path.isfile(directoryUnixUsers)):
+                with open(directoryUnixUsers) as directoryFile:
+                    for unixUser in directoryFile:
+                        socketEmailCommands.append('RCPT TO:' + unixUser)
+            self.runCommands('resultEmailserver', socketEmailCommands)
+        else:
+            socketEmailCommands = []
+            directoryUnixUsers = 'resources/unix-users.txt'
+            if(os.path.isfile(directoryUnixUsers)):
+                with open(directoryUnixUsers) as directoryFile:
+                    for unixUser in directoryFile:
+                        socketEmailCommands.append('VRFY ' + unixUser)
+            self.runCommands('resultEmailserver', socketEmailCommands)
 
     def resultEmailserver(self, smtpCommand):
         for url in self.urls:
             mySocket = socket.socket()
             mySocket.settimeout(10)
-            receivedData = 0
+            receivedData = None
             ipAddress = socket.gethostbyname(urlparse(url).netloc)
             try:
                 mySocket.connect((ipAddress, 25))
-                error = mySocket.sendall(smtpCommand+"\n")
+                if self.bruteEmailType == 'RCPT':
+                    mySocket.sendall("MAIL FROM:notme@hack.fish\n")
+                error = mySocket.sendall(smtpCommand + "\n")
                 mySocket.recv(512)
                 if error:
                     print("Timeout on: %s" % (smtpCommand))
@@ -117,12 +130,16 @@ class SecurityScanner:
                     except socket.timeout:
                         print("Timeout on: %s" % (smtpCommand))
                 if receivedData:
-                    if re.match("250", receivedData):
-                        print("Found user: %s" % (smtpCommand.replace('VRFY ', '')))
-                    elif re.match("252", receivedData):
-                        print("Found user: %s" % (smtpCommand.replace('VRFY ', '')))
+                    if self.bruteEmailType == 'RCPT':
+                        if re.match("250", receivedData.split("\n")[1]):
+                            print("Found user: %s" % (smtpCommand.replace('RCPT TO:', '')))
+                    else:
+                        if re.match("250", receivedData):
+                            print("Found user: %s" % (smtpCommand.replace('VRFY ', '')))
+                        elif re.match("252", receivedData):
+                            print("Found user: %s" % (smtpCommand.replace('VRFY ', '')))
                 else:
-                    print("Did not received data!")
+                    print("Did not received any data for command: %s" % (smtpCommand))
             except KeyboardInterrupt:
                 sys.exit(1)
             except socket.error as socketError:
