@@ -44,26 +44,24 @@ class SecurityScanner:
         except KeyboardInterrupt:
             sys.exit(1)
 
-    def runCommands(self, runFunction, listCommands):
-        # call method by name in string
-        method = getattr(SecurityScanner, runFunction)
-        # unbound to bound method
-        boundMethod = method.__get__(self, SecurityScanner)
-        for command in listCommands:
-            boundMethod(command)
-
     def addUrl(self, url):
         if isinstance(url, str):
-            correctUrl = urlparse(url).scheme + '://' + urlparse(url).netloc
-            print("Scanning: %s" % (correctUrl))
+            if(urlparse(url).scheme):
+                correctUrl = urlparse(url).scheme + '://' + urlparse(url).netloc
+            else:
+                correctUrl = 'http://' + url
+            print("Scanning: %s" % correctUrl)
             self.urls.append(correctUrl)
 
     def addFile(self, fileLocation):
         # strip /n
         fileLocation = [word.strip() for word in fileLocation]
         for url in fileLocation:
-            correctUrl = urlparse(url).scheme + '://' + urlparse(url).netloc
-            print("Scanning: %s" % (correctUrl))
+            if(urlparse(url).scheme):
+                correctUrl = urlparse(url).scheme + '://' + urlparse(url).netloc
+            else:
+                correctUrl = 'http://' + url
+            print("Scanning: %s" % correctUrl)
             self.urls.append(correctUrl)
 
     def searchDirectories(self):
@@ -76,7 +74,7 @@ class SecurityScanner:
                         directoryRequests.append(url + '/' + filename)
             self.runRequests('resultDirectories', directoryRequests)
         else:
-            print("File '%s' does not exist" % (directoryFileName))
+            print("File '%s' does not exist" % directoryFileName)
 
     def resultDirectories(self):
         while True:
@@ -103,41 +101,43 @@ class SecurityScanner:
                         socketEmailCommands.append('RCPT TO:' + unixUser)
                     else:
                         socketEmailCommands.append('VRFY ' + unixUser)
-        self.runCommands('resultEmailserver', socketEmailCommands)
-
-    def resultEmailserver(self, smtpCommand):
         for url in self.urls:
+            print("Bruteforcing host: %s\n" % url)
+            self.resultEmailserver(socketEmailCommands, url)
+
+    def resultEmailserver(self, smtpCommand, host):
+        for command in smtpCommand:
             mySocket = socket.socket()
             mySocket.settimeout(10)
             receivedData = None
-            domain = urlparse(url).netloc
+            domain = urlparse(host).netloc
             ipAddress = socket.gethostbyname(domain)
             try:
                 mySocket.connect((ipAddress, 25))
                 if self.bruteEmailType == 'RCPT':
                     mySocket.sendall("MAIL FROM:test@" + domain + "\n")
-                    error = mySocket.sendall(smtpCommand + "@" + domain + "\n")
+                    error = mySocket.sendall(command + "@" + domain + "\n")
                 else:
-                    error = mySocket.sendall(smtpCommand + "\n")
+                    error = mySocket.sendall(command + "\n")
                 mySocket.recv(512)
                 if error:
-                    print("Timeout on: %s" % (smtpCommand))
+                    print("Timeout on: %s" % command)
                 else:
                     try:
                         receivedData = mySocket.recv(512)
                     except socket.timeout:
-                        print("Timeout on: %s" % (smtpCommand))
+                        print("Timeout on: %s" % command)
                 if receivedData:
                     if self.bruteEmailType == 'RCPT':
                         if re.match("250", receivedData.split("\n")[1]):
-                            print("Found user: %s" % (smtpCommand.replace('RCPT TO:', '')))
+                            print("Found user: %s" % command.replace('RCPT TO:', ''))
                     else:
                         if re.match("250", receivedData):
-                            print("Found user: %s" % (smtpCommand.replace('VRFY ', '')))
+                            print("Found user: %s" % command.replace('VRFY ', ''))
                         elif re.match("252", receivedData):
-                            print("Found user: %s" % (smtpCommand.replace('VRFY ', '')))
+                            print("Found user: %s" % command.replace('VRFY ', ''))
                 else:
-                    print("Did not received any data for command: %s" % (smtpCommand))
+                    print("Did not received any data for command: %s" % command)
             except KeyboardInterrupt:
                 sys.exit(1)
             except socket.error as socketError:

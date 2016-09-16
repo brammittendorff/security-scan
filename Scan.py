@@ -33,10 +33,12 @@ elif args.file is not sys.stdin:
     scanner.addFile(args.file)
     if args.all or args.directories:
         scanner.searchDirectories()
-    if args.all or args.bruteemail:
-        if args.bruteemailtype:
-            scanner.searchEmailserver(args.bruteemailtype)
+    if args.all or args.smtpbrute:
+        if args.smtpbrute == 'RCPT':
+            print("Bruteforcing SMTP using: RCPT")
+            scanner.searchEmailserver(args.smtpbrute)
         else:
+            print("Bruteforcing SMTP using: VRFY")
             scanner.searchEmailserver()
     if args.all or args.headers:
         scanner.searchHeaders()
