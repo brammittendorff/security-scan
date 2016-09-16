@@ -2,6 +2,8 @@ import requests
 import sys
 import os
 import threading
+import socket
+import re
 
 try:
     from urllib.parse import urlparse
@@ -41,6 +43,14 @@ class SecurityScanner:
         except KeyboardInterrupt:
             sys.exit(1)
 
+    def runCommands(self, runFunction, listCommands):
+        # call method by name in string
+        method = getattr(SecurityScanner, runFunction)
+        # unbound to bound method
+        boundMethod = method.__get__(self, SecurityScanner)
+        for command in listCommands:
+            boundMethod(command)
+
     def addUrl(self, url):
         if isinstance(url, str):
             correctUrl = urlparse(url).scheme + '://' + urlparse(url).netloc
@@ -79,6 +89,46 @@ class SecurityScanner:
             except requests.exceptions.RequestException as requestsError:
                 print(requestsError)
             self.queue.task_done()
+
+    def searchEmailserver(self):
+        socketEmailCommands = []
+        directoryUnixUsers = 'resources/unix-users.txt'
+        if(os.path.isfile(directoryUnixUsers)):
+            with open(directoryUnixUsers) as directoryFile:
+                for unixUser in directoryFile:
+                    socketEmailCommands.append('VRFY ' + unixUser)
+        self.runCommands('resultEmailserver', socketEmailCommands)
+
+    def resultEmailserver(self, smtpCommand):
+        for url in self.urls:
+            mySocket = socket.socket()
+            mySocket.settimeout(10)
+            receivedData = 0
+            ipAddress = socket.gethostbyname(urlparse(url).netloc)
+            try:
+                mySocket.connect((ipAddress, 25))
+                error = mySocket.sendall(smtpCommand+"\n")
+                mySocket.recv(512)
+                if error:
+                    print("Timeout on: %s" % (smtpCommand))
+                else:
+                    try:
+                        receivedData = mySocket.recv(512)
+                    except socket.timeout:
+                        print("Timeout on: %s" % (smtpCommand))
+                if receivedData:
+                    if re.match("250", receivedData):
+                        print("Found user: %s" % (smtpCommand.replace('VRFY ', '')))
+                    elif re.match("252", receivedData):
+                        print("Found user: %s" % (smtpCommand.replace('VRFY ', '')))
+                else:
+                    print("Did not received data!")
+            except KeyboardInterrupt:
+                sys.exit(1)
+            except socket.error as socketError:
+                print("Caught exception socket.error: %s" % socketError)
+            mySocket.shutdown(2)
+            mySocket.close()
 
     def searchHeaders(self):
         self.runRequests('resultHeaders', self.urls)
