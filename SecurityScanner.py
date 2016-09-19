@@ -115,10 +115,12 @@ class SecurityScanner:
             try:
                 mySocket.connect((ipAddress, 25))
                 if self.bruteEmailType == 'RCPT':
-                    mySocket.sendall(b"MAIL FROM:test@" + str.encode(domain))
-                    error = mySocket.sendall(str.encode(command) + b"@" + str.encode(domain))
+                    cMailFrom = ("MAIL FROM:test@%s\n" % domain)
+                    mySocket.sendall(cMailFrom.encode('utf-8'))
+                    cMailTo = ("%s@%s\n" % (command, domain))
+                    error = mySocket.sendall(cMailTo.encode('utf-8'))
                 else:
-                    error = mySocket.sendall(str.encode(command))
+                    error = mySocket.sendall(command.encode('utf-8'))
                 mySocket.recv(512)
                 if error:
                     print("Timeout on: %s" % command)
