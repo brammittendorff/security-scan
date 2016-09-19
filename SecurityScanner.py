@@ -117,8 +117,8 @@ class SecurityScanner:
                 if self.bruteEmailType == 'RCPT':
                     cMailFrom = ("MAIL FROM:test@%s\n" % domain)
                     mySocket.sendall(cMailFrom.encode('utf-8'))
-                    cMailTo = ("%s@%s\n" % (command, domain))
-                    error = mySocket.sendall(cMailTo.encode('utf-8'))
+                    cRcptTo = ("%s@%s\n" % (command, domain))
+                    error = mySocket.sendall(cRcptTo.encode('utf-8'))
                 else:
                     error = mySocket.sendall(command.encode('utf-8'))
                 mySocket.recv(512)
