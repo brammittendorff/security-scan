@@ -42,7 +42,7 @@ class SecurityScanner:
         if isinstance(url, str):
             parsed_url = urlparse(url)
             if parsed_url.scheme:
-                correct_url = '{scheme}://{netloc}'.format(scheme=parsed_url.scheme, format=parsed_url.netloc)
+                correct_url = '{scheme}://{netloc}'.format(scheme=parsed_url.scheme, netloc=parsed_url.netloc)
             else:
                 correct_url = 'http://{url}'.format(url=url)
             print("Scanning: %s" % correct_url)
@@ -54,7 +54,7 @@ class SecurityScanner:
         for url in file_location:
             parsed_url = urlparse(url)
             if parsed_url.scheme:
-                correct_url = '{scheme}://{netloc}'.format(scheme=parsed_url.scheme, format=parsed_url.netloc)
+                correct_url = '{scheme}://{netloc}'.format(scheme=parsed_url.scheme, netloc=parsed_url.netloc)
             else:
                 correct_url = 'http://{url}'.format(url=url)
             print("Scanning: %s" % correct_url)
@@ -134,7 +134,7 @@ class SecurityScanner:
                     else:
                         if re.match('250', str(received_data.decode('utf-8'))):
                             print('Found user: {user}'.format(user=command.replace('VRFY ', '')))
-                        elif re.match('252', str(received_data.ecode('utf-8'))):
+                        elif re.match('252', str(received_data.decode('utf-8'))):
                             print('Found user: {user}'.format(user=command.replace('VRFY ', '')))
                 else:
                     print('Did not received any data for command: {command}'.format(command=command))
