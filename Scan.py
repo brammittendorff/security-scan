@@ -14,35 +14,35 @@ args = parser.parse_args()
 
 if args.url:
     scanner = SecurityScanner.SecurityScanner()
-    scanner.addUrl(args.url)
+    scanner.add_url(args.url)
     if args.all or args.directories:
-        scanner.searchDirectories()
+        scanner.search_directories()
     if args.all or args.smtpbrute:
         if args.smtpbrute == 'RCPT':
             print("Bruteforcing SMTP using: RCPT")
-            scanner.searchEmailserver(args.smtpbrute)
+            scanner.search_email_server(args.smtpbrute)
         else:
             print("Bruteforcing SMTP using: VRFY")
-            scanner.searchEmailserver()
+            scanner.search_email_server()
     if args.all or args.headers:
-        scanner.searchHeaders()
+        scanner.search_headers()
     if args.all or args.dns:
-        scanner.searchDNS()
+        scanner.search_dns()
 elif args.file is not sys.stdin:
     scanner = SecurityScanner.SecurityScanner()
-    scanner.addFile(args.file)
+    scanner.add_file(args.file)
     if args.all or args.directories:
-        scanner.searchDirectories()
+        scanner.search_directories()
     if args.all or args.smtpbrute:
         if args.smtpbrute == 'RCPT':
             print("Bruteforcing SMTP using: RCPT")
-            scanner.searchEmailserver(args.smtpbrute)
+            scanner.search_email_server(args.smtpbrute)
         else:
             print("Bruteforcing SMTP using: VRFY")
-            scanner.searchEmailserver()
+            scanner.search_email_server()
     if args.all or args.headers:
-        scanner.searchHeaders()
+        scanner.search_headers()
     if args.all or args.dns:
-        scanner.searchDNS()
+        scanner.search_dns()
 else:
     parser.print_help()
