@@ -94,9 +94,9 @@ class SecurityScanner:
             with open(directory_unix_users) as directoryFile:
                 for unix_user in directoryFile:
                     if smtp_type == 'RCPT':
-                        socket_email_commands.append('RCPT TO: {user}'.format( user=unix_user ))
+                        socket_email_commands.append('RCPT TO: {user}'.format(user=unix_user))
                     else:
-                        socket_email_commands.append('VRFY {user}'.format( user=unix_user ))
+                        socket_email_commands.append('VRFY {user}'.format(user=unix_user))
         for url in self.urls:
             print("Bruteforcing host: %s\n" % url)
             self.run_email_server(socket_email_commands, url)
@@ -111,9 +111,9 @@ class SecurityScanner:
             try:
                 my_socket.connect((ip_address, 25))
                 if self.bruteEmailType == 'RCPT':
-                    c_mail_from = ('MAIL FROM:test@{domain}\n'.format( domain=domain ))
+                    c_mail_from = ('MAIL FROM:test@{domain}\n'.format(domain=domain))
                     my_socket.sendall(c_mail_from.encode('utf-8'))
-                    c_rcpt_to = '{command}@{domain}\n'.format( command=command, domain=domain )
+                    c_rcpt_to = '{command}@{domain}\n'.format(command=command, domain=domain)
                     error = my_socket.sendall(c_rcpt_to.encode('utf-8'))
                 else:
                     error = my_socket.sendall(command.encode('utf-8'))
@@ -126,16 +126,16 @@ class SecurityScanner:
                     except KeyboardInterrupt:
                         sys.exit(1)
                     except socket.timeout:
-                        print('Timeout on: {command}'.format( command=command ))
+                        print('Timeout on: {command}'.format(command=command))
                 if received_data:
                     if self.bruteEmailType == 'RCPT':
                         if re.match('250', str(received_data.decode('utf-8')).split('\n')[1]):
                             print('Found user: {user}'.format(user=command.replace('RCPT TO: ', '')))
                     else:
                         if re.match('250', str(received_data.decode('utf-8'))):
-                            print('Found user: {user}'.format( user=command.replace( 'VRFY ', '' ) ))
-                        elif re.match('252', str(received_data.decode('utf-8'))):
-                            print('Found user: {user}'.format( user=command.replace( 'VRFY ', '' ) ))
+                            print('Found user: {user}'.format(user=command.replace('VRFY ', '')))
+                        elif re.match('252', str(received_data.ecode('utf-8'))):
+                            print('Found user: {user}'.format(user=command.replace('VRFY ', '')))
                 else:
                     print('Did not received any data for command: {command}'.format(command=command))
             except KeyboardInterrupt:
