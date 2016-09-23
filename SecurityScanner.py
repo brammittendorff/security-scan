@@ -64,7 +64,7 @@ class SecurityScanner:
                 correct_url = '{scheme}://{netloc}'.format(scheme=parsed_url.scheme, netloc=parsed_url.netloc)
             else:
                 correct_url = 'http://{url}'.format(url=url)
-            print("Scanning: %s" % correct_url)
+            print("Scan url: {0}".format(correct_url))
             self.urls.append(correct_url)
 
     def add_file(self, file_location):
@@ -108,10 +108,16 @@ class SecurityScanner:
             self.queue.task_done()
 
     def search_email_server(self, smtp_type=None):
+
         if smtp_type == 'RCPT':
             self.bruteEmailType = smtp_type
+        print('=======================')
+        print('Preparing SMTP bruteforce using: {0}'.format(self.bruteEmailType))
         socket_email_commands = []
         directory_unix_users = 'resources/unix-users.txt'
+        print('opening usernames file at {0}'.format(directory_unix_users))
+        print('found {0} usernames'.format(len(directory_unix_users)))
+
         if os.path.isfile(directory_unix_users):
             with open(directory_unix_users) as directoryFile:
                 for unix_user in directoryFile:
@@ -119,6 +125,8 @@ class SecurityScanner:
                         socket_email_commands.append('RCPT TO: {user}'.format(user=unix_user))
                     else:
                         socket_email_commands.append('VRFY {user}'.format(user=unix_user))
+
+        print('=======================')
         for url in self.urls:
             print("Bruteforcing host: %s\n" % url)
             self.run_email_server(socket_email_commands, url)
