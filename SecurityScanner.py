@@ -15,6 +15,17 @@ try:
 except ImportError:
     import queue as Queue
 
+import logging
+import settings
+
+# logging.basicConfig(level=logging.INFO)
+# import sys
+# sys.stdout = open('./log.txt', 'w')
+
+
+
+
+
 class SecurityScanner:
 
     def __init__(self):
@@ -24,6 +35,11 @@ class SecurityScanner:
         self.concurrent = 200
         self.session = requests.Session()
         self.bruteEmailType = 'VRFY'
+
+
+    # def add_logging_file(self, output_file='log.txt'):
+    #     logging.basicConfig(filename=output_file, level=logging.DEBUG)
+
 
     def run_requests(self, run_function, run_array):
         self.queue = Queue.Queue(self.concurrent * 2)
@@ -36,7 +52,10 @@ class SecurityScanner:
                 self.queue.put(request)
             self.queue.join()
         except KeyboardInterrupt:
+
             sys.exit(1)
+
+
 
     def add_url(self, url):
         if isinstance(url, str):
@@ -77,9 +96,12 @@ class SecurityScanner:
             url = self.queue.get()
             try:
                 request = self.session.get(url, verify=False)
-                if request.status_code != 404:
-                    print('{status} on url: {url}'.format(status=request.status_code, url=url.rstrip()))
+                if request.status_code not in settings.DIR_SEARCH_FILTER_STATUSCODES:
+                    result_message = '{status} on url: {url}'.format(status=request.status_code, url=url.rstrip())
+                    # logging.debug(result_message)
+                    print(result_message)
             except KeyboardInterrupt:
+                # break
                 sys.exit(1)
             except requests.exceptions.RequestException as requestsError:
                 print(requestsError)

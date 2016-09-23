@@ -10,6 +10,7 @@ parser.add_argument('--directories', help='scan directories after url', action='
 parser.add_argument('--smtpbrute', help='bruteforce usernames on mailserver using VRFY or RCPT', type=str)
 parser.add_argument('--headers', help='only scan the headers', action='store_true')
 parser.add_argument('--dns', help='only scan DNS', action='store_true')
+parser.add_argument('--log', help='use log file?', action='store_true', default=True)
 args = parser.parse_args()
 
 if args.url:
@@ -31,6 +32,7 @@ if args.url:
 elif args.file is not sys.stdin:
     scanner = SecurityScanner.SecurityScanner()
     scanner.add_file(args.file)
+
     if args.all or args.directories:
         scanner.search_directories()
     if args.all or args.smtpbrute:
