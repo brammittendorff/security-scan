@@ -23,7 +23,7 @@ import settings
 # sys.stdout = open('./log.txt', 'w')
 
 
-
+REGION_STRING = '======================='
 
 
 class SecurityScanner:
@@ -111,7 +111,7 @@ class SecurityScanner:
 
         if smtp_type == 'RCPT':
             self.bruteEmailType = smtp_type
-        print('=======================')
+        print(REGION_STRING)
         print('Preparing SMTP bruteforce using: {0}'.format(self.bruteEmailType))
         socket_email_commands = []
         directory_unix_users = 'resources/unix-users.txt'
@@ -138,8 +138,10 @@ class SecurityScanner:
             received_data = None
             domain = urlparse(host).netloc
             ip_address = socket.gethostbyname(domain)
+
+            port = 25
             try:
-                my_socket.connect((ip_address, 25))
+                my_socket.connect((ip_address, port))
                 if self.bruteEmailType == 'RCPT':
                     c_mail_from = ('MAIL FROM:test@{domain}\n'.format(domain=domain))
                     my_socket.sendall(c_mail_from.encode('utf-8'))
@@ -171,7 +173,16 @@ class SecurityScanner:
             except KeyboardInterrupt:
                 sys.exit(1)
             except socket.error as socket_error:
-                print('Caught exception socket.error: {error}'.format(error=socket_error))
+                print(REGION_STRING)
+                print('ERROR!!')
+                print('Could not connect to socket at port {0}'.format(port))
+                print(REGION_STRING)
+                print(socket_error)
+                print(REGION_STRING)
+                return
+                # print('Caught exception socket.error: {error}'.format(error=socket_error))
+
+
             my_socket.shutdown(2)
             my_socket.close()
 
