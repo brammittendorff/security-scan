@@ -55,8 +55,6 @@ class SecurityScanner:
 
             sys.exit(1)
 
-
-
     def add_url(self, url):
         if isinstance(url, str):
             parsed_url = urlparse(url)
@@ -126,7 +124,7 @@ class SecurityScanner:
                     else:
                         socket_email_commands.append('VRFY {user}'.format(user=unix_user))
 
-        print('=======================')
+        print(REGION_STRING)
         for url in self.urls:
             print("Bruteforcing host: %s\n" % url)
             self.run_email_server(socket_email_commands, url)
@@ -174,7 +172,7 @@ class SecurityScanner:
                 sys.exit(1)
             except socket.error as socket_error:
                 print(REGION_STRING)
-                print('ERROR!!')
+                print('Error!')
                 print('Could not connect to socket at port {0}'.format(port))
                 print(REGION_STRING)
                 print(socket_error)
