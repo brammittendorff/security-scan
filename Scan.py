@@ -1,3 +1,7 @@
+"""This is the security scanner module.
+
+It scans your given url or urllist.txt
+"""
 import SecurityScanner
 import argparse
 import sys
@@ -10,11 +14,13 @@ parser.add_argument('--directories', help='scan directories after url', action='
 parser.add_argument('--smtpbrute', help='bruteforce usernames on mailserver using VRFY or RCPT', action='store_true')
 parser.add_argument('--headers', help='only scan the headers', action='store_true')
 parser.add_argument('--dns', help='only scan DNS', action='store_true')
-parser.add_argument('--log', help='use a log file', action='store_true', default=False)
+parser.add_argument('--log', help='a file to write the logs to')
 args = parser.parse_args()
 
 if args.url:
     scanner = SecurityScanner.SecurityScanner()
+    if args.log:
+        scanner.log_to_file(args.log)
     scanner.add_url(args.url)
 
     if args.all or args.directories:
@@ -30,6 +36,8 @@ if args.url:
         scanner.search_dns()
 elif args.file is not sys.stdin:
     scanner = SecurityScanner.SecurityScanner()
+    if args.log:
+        scanner.log_to_file(args.log)
     scanner.add_file(args.file)
 
     if args.all or args.directories:

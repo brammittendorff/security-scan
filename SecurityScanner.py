@@ -1,3 +1,7 @@
+"""This is the security scanner class.
+
+This class will give you the most known security powers
+"""
 import requests
 import sys
 import os
@@ -18,13 +22,7 @@ except ImportError:
 import logging
 import settings
 
-# logging.basicConfig(level=logging.INFO)
-# import sys
-# sys.stdout = open('./log.txt', 'w')
-
-
 REGION_STRING = '======================='
-
 
 class SecurityScanner:
 
@@ -36,10 +34,9 @@ class SecurityScanner:
         self.session = requests.Session()
         self.bruteEmailType = 'VRFY'
 
-
-    # def add_logging_file(self, output_file='log.txt'):
-    #     logging.basicConfig(filename=output_file, level=logging.DEBUG)
-
+    def log_to_file(self, output_file='log.txt'):
+        sys.stdout = open('./log.txt', 'w+')
+        logging.basicConfig(filename=output_file, level=logging.ERROR)
 
     def run_requests(self, run_function, run_array):
         self.queue = Queue.Queue(self.concurrent * 2)
@@ -52,7 +49,6 @@ class SecurityScanner:
                 self.queue.put(request)
             self.queue.join()
         except KeyboardInterrupt:
-
             sys.exit(1)
 
     def add_url(self, url):
