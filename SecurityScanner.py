@@ -96,7 +96,6 @@ class SecurityScanner:
                 request = self.session.get(url, verify=False)
                 if request.status_code not in settings.DIR_SEARCH_FILTER_STATUSCODES:
                     result_message = '{status} on url: {url}'.format(status=request.status_code, url=url.rstrip())
-                    # logging.debug(result_message)
                     print(result_message)
             except KeyboardInterrupt:
                 # break
@@ -178,8 +177,6 @@ class SecurityScanner:
                 print(socket_error)
                 print(REGION_STRING)
                 return
-                # print('Caught exception socket.error: {error}'.format(error=socket_error))
-
 
             my_socket.shutdown(2)
             my_socket.close()
