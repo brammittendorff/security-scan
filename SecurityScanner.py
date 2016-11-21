@@ -35,7 +35,11 @@ class SecurityScanner:
         self.bruteEmailType = 'VRFY'
 
     def log_to_file(self, output_file='log.txt'):
-        sys.stdout = open('./log.txt', 'w+')
+        try:
+            with open(output_file) as file:
+                sys.stdout = open(output_file, 'r')
+        except IOError:
+            sys.stdout = open(output_file, 'w+')
         logging.basicConfig(filename=output_file, level=logging.ERROR)
 
     def run_requests(self, run_function, run_array):
