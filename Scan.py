@@ -6,16 +6,16 @@ import SecurityScanner
 import argparse
 import sys
 
-parser = argparse.ArgumentParser(description='A simple security scanner.')
-parser.add_argument('--url', help='a url to scan', type=str)
-parser.add_argument('--file', help='a url file list to scan', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
-parser.add_argument('--all', help='the mother of all scans', action='store_true')
-parser.add_argument('--directories', help='scan directories after url', action='store_true')
-parser.add_argument('--smtpbrute', help='bruteforce usernames on mailserver using VRFY or RCPT', action='store', default='VRFY')
-parser.add_argument('--headers', help='only scan the headers', action='store_true')
-parser.add_argument('--dns', help='only scan DNS', action='store_true')
-parser.add_argument('--log', help='a file to write the logs to')
-args = parser.parse_args()
+p = argparse.ArgumentParser(description='A simple security scanner.')
+p.add_argument('--url', help='a url to scan', type=str)
+p.add_argument('--file', help='a url file list to scan', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
+p.add_argument('--all', help='the mother of all scans', action='store_true')
+p.add_argument('--directories', help='scan directories after url', action='store_true')
+p.add_argument('--smtpbrute', help='bruteforce mailserver using VRFY or RCPT', action='store', default='VRFY')
+p.add_argument('--headers', help='only scan the headers', action='store_true')
+p.add_argument('--dns', help='only scan DNS', action='store_true')
+p.add_argument('--log', help='a file to write the logs to')
+args = p.parse_args()
 
 if args.url:
     scanner = SecurityScanner.SecurityScanner()
@@ -54,4 +54,4 @@ elif args.file is not sys.stdin:
     if args.all or args.dns:
         scanner.search_dns()
 else:
-    parser.print_help()
+    p.print_help()
