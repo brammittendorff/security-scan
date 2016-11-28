@@ -24,8 +24,8 @@ import settings
 
 REGION_STRING = '======================='
 
-class SecurityScanner:
 
+class SecurityScanner:
     def __init__(self):
         requests.packages.urllib3.disable_warnings()
         self.urls = []
@@ -36,7 +36,7 @@ class SecurityScanner:
 
     def log_to_file(self, output_file='log.txt'):
         try:
-            with open(output_file) as file:
+            with open(output_file):
                 sys.stdout = open(output_file, 'r')
         except IOError:
             sys.stdout = open(output_file, 'w+')
