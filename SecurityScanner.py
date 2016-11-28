@@ -2,6 +2,7 @@
 
 This class will give you the most known security powers
 """
+
 import requests
 import sys
 import os
