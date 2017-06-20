@@ -106,7 +106,6 @@ class SecurityScanner:
             self.queue.task_done()
 
     def search_email_server(self, smtp_type=None):
-
         if smtp_type == 'RCPT':
             self.bruteEmailType = smtp_type
         print(REGION_STRING)
